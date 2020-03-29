@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.arcosx.sirius.kafka";
+option java_outer_classname = "SiriusKafka";
+
+service Kafka {
+    rpc Produce (ProduceRequest) returns (ProduceRes) {
+    }
+}
+
+message ProduceRequest {
+    string cluster = 1;
+    string topic = 2;
+    bytes message = 3;
+}
+
+message ProduceRes {
+}
