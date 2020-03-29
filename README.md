@@ -1,2 +1,2 @@
 # Sirius
-Streaming Data RPC Proxy Access Based On gRPC
+⚡️ Cloud Native Streaming Data RPC Proxy Based On gRPC
