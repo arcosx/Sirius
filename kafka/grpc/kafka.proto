@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.arcosx.sirius.kafka";
+option java_outer_classname = "SiriusKafka";
+
+service Kafka {
+    rpc Produce (ProduceRequest) returns (stream ProduceRes) {
+    }
+    rpc Consume (ConsumeRequest) returns (stream ConsumeRes) {
+    }
+}
+
+message ProduceRequest {
+    string isolation = 1;
+    string topic = 2;
+    bytes message = 3;
+}
+
+message ProduceRes {
+}
+
+message ConsumeRequest {
+    string isolation = 1;
+    string group = 2;
+    string topic = 3;
+}
+
+message ConsumeRes {
+    int32 partition = 1;
+    int64 offset = 2;
+    bytes value = 3;
+}
