@@ -5,7 +5,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-
 var C Config
 
 type Config struct {

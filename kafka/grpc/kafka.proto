@@ -9,11 +9,7 @@ service Kafka {
     }
     rpc ProduceAsync (ProduceRequest) returns (Empty) {
     }
-    rpc ProduceSync (ProduceRequest) returns (ProduceRes) {
-    }
     rpc ConsumeStream (ConsumeRequest) returns (stream ConsumeRes) {
-    }
-    rpc ConsumeSync (ConsumeRequest) returns (ConsumeRes) {
     }
 }
 
