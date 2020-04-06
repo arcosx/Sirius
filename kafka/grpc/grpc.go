@@ -27,11 +27,11 @@ func NewKafkaService(addr string, opts ...grpc.ServerOption) {
 	log.Info("Create Kafka Service gRPC success on", addr)
 }
 
-func (k *kafkaServer) ProduceStream(server Kafka_ProduceStreamServer) error {
+func (k *kafkaServer) ProduceStream(stream Kafka_ProduceStreamServer) error {
 	for {
-		request, err := server.Recv()
+		request, err := stream.Recv()
 		if err == io.EOF {
-			return server.SendAndClose(new(Empty))
+			return stream.SendAndClose(new(Empty))
 		}
 		isolationKeyWord := request.Isolation
 		isolationInstance, err := isolation.IsolationSet.GetIsolation(isolationKeyWord)
@@ -52,4 +52,13 @@ func (k *kafkaServer) ProduceAsync(_ context.Context, request *ProduceRequest) (
 	}
 	isolationInstance.ProduceAsync(request.Topic, request.Message)
 	return new(Empty), nil
+}
+
+func (k *kafkaServer) ConsumeStream(request *ConsumeRequest, stream kafkaConsumeStreamServer) error {
+	//isolationKeyWord := request.Isolation
+	//isolationInstance, err := isolation.IsolationSet.GetIsolation(isolationKeyWord)
+	//if err != nil {
+	//	log.Error("ProduceAsync GetIsolation", isolationKeyWord, "Error", err)
+	//	return err
+	//}
 }

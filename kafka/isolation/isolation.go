@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/arcosx/Sirius/config"
+	"github.com/arcosx/Sirius/kafka/consumer"
 	"github.com/arcosx/Sirius/kafka/producer"
 )
 
@@ -18,7 +19,7 @@ type Isolation struct {
 	// isolation key
 	keyword       string
 	producerProxy *producer.Proxy
-	// TODO：consumerProxy
+	consumerProxy *consumer.Proxy
 }
 
 // Set for Isolation
@@ -26,6 +27,7 @@ type Set struct {
 	isolationMap map[string]*Isolation
 }
 
+// functions for IsolationSet
 func InitIsolationSet() {
 	kafkaConfig := config.C.GetKafkaServiceConfig()
 	IsolationSet.isolationMap = make(map[string]*Isolation)
@@ -38,6 +40,7 @@ func SetIsolation(keyword string, ProducerConfig map[string]interface{}, Consume
 	var isolation Isolation
 	isolation.keyword = keyword
 	isolation.producerProxy = producer.InitProxy(ProducerConfig)
+	isolation.consumerProxy = consumer.InitProxy(ConsumerConfig)
 	IsolationSet.isolationMap[keyword] = &isolation
 }
 func (T *Set) GetIsolation(keyword string) (*Isolation, error) {
@@ -65,6 +68,6 @@ func (T *Isolation) ProduceAsync(topic string, message []byte) {
 
 func (T *Isolation) String() string {
 	var toStringResult string
-	toStringResult = fmt.Sprintf("keyword %s\nproducerProxy %s", T.keyword, T.producerProxy)
+	toStringResult = fmt.Sprintf("keyword %s\nproducerProxy %s\nconsumerProxy %s", T.keyword, T.producerProxy, T.consumerProxy)
 	return toStringResult
 }
