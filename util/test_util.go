@@ -11,7 +11,6 @@ import (
 )
 
 // function for unit test file get right config path
-// not use it in production
 func SetConfig() {
 	wd, _ := os.Getwd()
 	for !strings.HasSuffix(wd, "Sirius") {
@@ -21,6 +20,7 @@ func SetConfig() {
 	config.InitConfig("conf/")
 }
 
+// function for unit test file get unix time
 func GetTimeNowString() string {
 	return fmt.Sprintf("\ttime:%s", strconv.FormatInt(time.Now().UnixNano(), 10))
 }

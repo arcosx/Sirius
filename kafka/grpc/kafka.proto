@@ -5,7 +5,7 @@ option java_package = "com.arcosx.sirius.kafka";
 option java_outer_classname = "SiriusKafka";
 
 service Kafka {
-    rpc ProduceStream (stream ProduceRequest) returns (stream ProduceRes) {
+    rpc ProduceStream (stream ProduceRequest) returns (Empty) {
     }
     rpc ProduceAsync (ProduceRequest) returns (Empty) {
     }
@@ -17,11 +17,6 @@ message ProduceRequest {
     string isolation = 1;
     string topic = 2;
     bytes message = 3;
-}
-
-message ProduceRes {
-    int32 partition = 1;
-    int64 offset = 2;
 }
 
 message ConsumeRequest {
