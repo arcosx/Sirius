@@ -1,0 +1,20 @@
+---
+kafka:
+  rpc:
+    port: ":8848"
+    zzz: fuck
+  isolations:
+    - keyword: test
+      producerConfig:
+        bootstrap.servers: myjd:9092
+      consumerConfig:
+        group.id: mygroup
+        bootstrap.servers: localhost:9092
+        auto.offset.reset: earliest
+    - keyword: prod
+      producerConfig:
+        bootstrap.servers: localhost2:9092
+      consumerConfig:
+        group.id: mygroup2
+        bootstrap.servers: localhost2:9092
+        auto.offset.reset: earliest

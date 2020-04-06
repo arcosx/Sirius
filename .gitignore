@@ -93,6 +93,5 @@ fabric.properties
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
-cmd/
-mysql/
-redis/
+
+conf/config.yml

@@ -7,17 +7,18 @@ package isolation
 import (
 	"errors"
 	"fmt"
-	"github.com/arcosx/Sirius/kafka/consumer"
+	"github.com/arcosx/Sirius/config"
 	"github.com/arcosx/Sirius/kafka/producer"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
+
+// all isolation
+var IsolationSet Set
 
 type Isolation struct {
 	// isolation key
-	keyword   string
-	configMap map[string]kafka.ConfigMap
-	producer  *producer.Producer
-	consumer  *consumer.Consumer
+	keyword       string
+	producerProxy *producer.Proxy
+	// TODO：consumerProxy
 }
 
 // Set for Isolation
@@ -25,23 +26,45 @@ type Set struct {
 	isolationMap map[string]*Isolation
 }
 
-func InitIsolationSet(isolationMap map[string]*Isolation) *Set {
-	return &Set{isolationMap: isolationMap}
-}
+func InitIsolationSet() {
+	kafkaConfig := config.C.GetKafkaServiceConfig()
+	IsolationSet.isolationMap = make(map[string]*Isolation)
+	for _, kfc := range kafkaConfig.Isolations {
+		SetIsolation(kfc.Keyword, kfc.ProducerConfig, kfc.ConsumerConfig)
+	}
 
-func (s *Set) GetIsolation(keyword string) (*Isolation, error) {
+}
+func SetIsolation(keyword string, ProducerConfig map[string]interface{}, ConsumerConfig map[string]interface{}) {
+	var isolation Isolation
+	isolation.keyword = keyword
+	isolation.producerProxy = producer.InitProxy(ProducerConfig)
+	IsolationSet.isolationMap[keyword] = &isolation
+}
+func (T *Set) GetIsolation(keyword string) (*Isolation, error) {
 	if keyword == "" {
 		return nil, errors.New("isolation keyword is not a legal value")
 	}
-	if isolation := s.isolationMap[keyword]; isolation != nil {
+	if isolation := T.isolationMap[keyword]; isolation != nil {
 		return isolation, nil
 	}
 	return nil, errors.New(fmt.Sprintf("isolation %s not exist", keyword))
 }
 
-func (i *Isolation) Produce(topic string, message []byte) {
-
+func (T *Set) String() string {
+	var toStringResult string
+	for _, value := range IsolationSet.isolationMap {
+		toStringResult += fmt.Sprintf("%s\n", value)
+	}
+	return toStringResult
 }
 
-func (i *Isolation) Consume(topic string) {
+//functions for Isolation
+func (T *Isolation) ProduceAsync(topic string, message []byte) {
+	T.producerProxy.ProduceAsync(topic, message)
+}
+
+func (T *Isolation) String() string {
+	var toStringResult string
+	toStringResult = fmt.Sprintf("keyword %s\nproducerProxy %s", T.keyword, T.producerProxy)
+	return toStringResult
 }

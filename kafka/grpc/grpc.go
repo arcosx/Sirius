@@ -2,6 +2,8 @@
 package kafka
 
 import (
+	"context"
+	"github.com/arcosx/Sirius/kafka/isolation"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"net"
@@ -11,22 +13,26 @@ type kafkaServer struct {
 	UnimplementedKafkaServer
 }
 
-func NewKafkaServer(addr string, opts ...grpc.ServerOption) error {
+func NewKafkaService(addr string, opts ...grpc.ServerOption) {
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Error("Create gRPC failed", err)
-		return err
+		log.Fatal("Create Kafka Service gRPC failed:Failed net Listen", err)
 	}
 	grpcServer := grpc.NewServer(opts...)
 	RegisterKafkaServer(grpcServer, &kafkaServer{})
-	grpcServer.Serve(lis)
-	return nil
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatal("Create Kafka Service gRPC failed:Failed to serve: %v", err)
+	}
+	log.Info("Create Kafka Service gRPC success on", addr)
 }
 
-func (k *kafkaServer) Produce(req *ProduceRequest, stream Kafka_ProduceServer) error {
-	return nil
-}
-
-func (k *kafkaServer) Consume(req *ConsumeRequest, stream Kafka_ConsumeServer) error {
-	return nil
+func (k *kafkaServer) ProduceAsync(ctx context.Context, request *ProduceRequest) (*Empty, error) {
+	isolationKeyWord := request.Isolation
+	isolationInstance, err := isolation.IsolationSet.GetIsolation(isolationKeyWord)
+	if err != nil {
+		log.Error("ProduceAsync GetIsolation", isolationKeyWord, "Error", err)
+		return nil, err
+	}
+	isolationInstance.ProduceAsync(request.Topic, request.Message)
+	return new(Empty), nil
 }
