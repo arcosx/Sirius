@@ -3,6 +3,7 @@ package isolation
 import (
 	"fmt"
 	"github.com/arcosx/Sirius/util"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"testing"
 	"time"
 )
@@ -32,4 +33,18 @@ func TestSet_GetIsolation(t *testing.T) {
 		t.Error(err)
 	}
 	fmt.Println(isolation)
+}
+
+func TestIsolation_Consume(t *testing.T) {
+	InitIsolationSet()
+	isolation, err := IsolationSet.GetIsolation("test")
+	if err != nil {
+		t.Error(err)
+	}
+	readChan := make(chan *kafka.Message)
+	isolation.Consume("test", readChan)
+	for {
+		msg := <-readChan
+		t.Log(string(msg.Value))
+	}
 }

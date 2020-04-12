@@ -21,7 +21,6 @@ message ProduceRequest {
 
 message ConsumeRequest {
     string isolation = 1;
-    string group = 2;
     string topic = 3;
 }
 

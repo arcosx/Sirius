@@ -45,16 +45,16 @@ func TestProducer(t *testing.T) {
 
 func TestConsumer(t *testing.T) {
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost",
+		"bootstrap.servers": "myjd:9092",
 		"group.id":          "myGroup",
-		"auto.offset.reset": "earliest",
+		//"auto.offset.reset": "earliest",
 	})
 
 	if err != nil {
 		panic(err)
 	}
 
-	c.SubscribeTopics([]string{"myTopic", "^aRegex.*[Tt]opic"}, nil)
+	c.Subscribe("test", nil)
 
 	for {
 		msg, err := c.ReadMessage(-1)

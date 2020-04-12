@@ -4,6 +4,7 @@ package kafka
 import (
 	"context"
 	"github.com/arcosx/Sirius/kafka/isolation"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"io"
@@ -54,11 +55,21 @@ func (k *kafkaServer) ProduceAsync(_ context.Context, request *ProduceRequest) (
 	return new(Empty), nil
 }
 
-func (k *kafkaServer) ConsumeStream(request *ConsumeRequest, stream kafkaConsumeStreamServer) error {
-	//isolationKeyWord := request.Isolation
-	//isolationInstance, err := isolation.IsolationSet.GetIsolation(isolationKeyWord)
-	//if err != nil {
-	//	log.Error("ProduceAsync GetIsolation", isolationKeyWord, "Error", err)
-	//	return err
-	//}
+func (k *kafkaServer) ConsumeStream(request *ConsumeRequest, stream Kafka_ConsumeStreamServer) error {
+	isolationKeyWord := request.Isolation
+	isolationInstance, err := isolation.IsolationSet.GetIsolation(isolationKeyWord)
+	if err != nil {
+		log.Error("ProduceAsync GetIsolation", isolationKeyWord, "Error", err)
+		return err
+	}
+	readChan := make(chan *kafka.Message)
+	isolationInstance.Consume(request.Topic, readChan)
+	for {
+		message := <-readChan
+		var consumeRes ConsumeRes
+		consumeRes.Value = message.Value
+		consumeRes.Offset = int64(message.TopicPartition.Offset)
+		consumeRes.Partition = message.TopicPartition.Partition
+		stream.Send(&consumeRes)
+	}
 }

@@ -46,7 +46,7 @@ func (T *Proxy) String() string {
 	return toStringResult
 }
 
-func (T *Proxy) ConsumeTopic(topic string, ch chan<- *kafka.Message) error {
+func (T *Proxy) ConsumeTopic(topic string, ch chan *kafka.Message) error {
 	err := T.c.Subscribe(topic, nil)
 	if err != nil {
 		log.Error("ConsumeTopic Subscribe Topic", topic, "Error:", err)
@@ -55,10 +55,11 @@ func (T *Proxy) ConsumeTopic(topic string, ch chan<- *kafka.Message) error {
 	for {
 		msg, err := T.c.ReadMessage(-1)
 		if err == nil {
-			log.Info("ConsumeTopic Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+			log.Info("ConsumeTopic Message on", msg.TopicPartition, string(msg.Value))
 			ch <- msg
 		} else {
 			log.Error("ConsumeTopic ReadMessage Error:", err, msg)
+			ch <- msg
 			return err
 		}
 	}

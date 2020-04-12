@@ -10,6 +10,7 @@ import (
 	"github.com/arcosx/Sirius/config"
 	"github.com/arcosx/Sirius/kafka/consumer"
 	"github.com/arcosx/Sirius/kafka/producer"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 // all isolation
@@ -64,6 +65,10 @@ func (T *Set) String() string {
 //functions for Isolation
 func (T *Isolation) ProduceAsync(topic string, message []byte) {
 	T.producerProxy.ProduceAsync(topic, message)
+}
+
+func (T *Isolation) Consume(topic string, ch chan *kafka.Message) {
+	go T.consumerProxy.ConsumeTopic(topic, ch)
 }
 
 func (T *Isolation) String() string {

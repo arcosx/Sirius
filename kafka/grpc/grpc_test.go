@@ -17,6 +17,7 @@ func init() {
 
 }
 
+// init a real grpc for test
 func init() {
 	go NewKafkaService(config.C.Kafka.Rpc["port"])
 }
@@ -67,6 +68,30 @@ func Test_kafkaServer_ProduceStream(t *testing.T) {
 				kafkaProduceStreamClient.CloseSend()
 				break
 			}
+		}
+	})
+}
+
+func Test_kafkaServer_ConsumeStream(t *testing.T) {
+	ctx := context.Background()
+	const address = "localhost:8848"
+	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	if err != nil {
+		t.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	c := NewKafkaClient(conn)
+	t.Run("test ConsumeStream", func(t *testing.T) {
+		kafkaConsumer, err := c.ConsumeStream(ctx, &ConsumeRequest{
+			Isolation: "test",
+			Topic:     "test",
+		})
+		if err != nil {
+			t.Error(err)
+		}
+		for {
+			consumeRes, _ := kafkaConsumer.Recv()
+			t.Log(consumeRes)
 		}
 	})
 }
