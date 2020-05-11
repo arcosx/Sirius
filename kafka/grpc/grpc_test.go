@@ -18,7 +18,7 @@ func init() {
 }
 
 // init a real grpc for test
-func init() {
+func initService() {
 	go NewKafkaService(config.C.Kafka.Rpc["port"])
 }
 
@@ -73,6 +73,7 @@ func Test_kafkaServer_ProduceStream(t *testing.T) {
 }
 
 func Test_kafkaServer_ConsumeStream(t *testing.T) {
+	initService()
 	ctx := context.Background()
 	const address = "localhost:8848"
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
