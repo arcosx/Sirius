@@ -9,6 +9,7 @@ import (
 )
 
 func init() {
+	println("Hello Sirius !")
 	log.SetFormatter(&log.JSONFormatter{})
 	util.SetConfig()
 	isolation.InitIsolationSet()
